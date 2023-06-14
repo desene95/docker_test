@@ -1,0 +1,35 @@
+pipeline{
+    agent any
+    
+    environment {
+        registry = 'dameesene95/coin_toss'
+        dockerImage = ''
+        registryCredential = 'f8dc8697-5dce-44ab-b20e-d047f5cea653'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/desene95/docker_test']])
+            }
+            
+        }
+        stage('Build docker image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry
+                }
+            }
+        }
+        stage('move image to docker hub') {
+            steps {
+                script {
+                            docker.withRegistry( '', registryCredential){
+                            dockerImage.push()
+                    }
+                   
+                }
+            }
+        }
+    }
+}
